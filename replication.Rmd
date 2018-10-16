@@ -1,0 +1,409 @@
+---
+title: "Replication code"
+author: "Alexey Bessudnov"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+
+```
+
+This is a replication code to reproduce the results in Bessudnov, A. \& Shcherbak, A. "Ethnic hierarchy in the Russian labour market: A field experiment".
+
+# Install and attach packages
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(survey)
+library(srvyr)
+library(stargazer)
+```
+
+# Name recognition survey (table 2)
+
+```{r}
+Names <- read.csv("SurveyPublic.csv")
+Names <- Names %>%
+        filter(loc != "abroad") %>%
+        filter(ethnLabel != "Bashkir") %>%
+        filter(ethnLabel != "Belarusian") %>%
+        filter(ethnLabel != "Dagestani") %>%
+        filter(ethnLabel != "Estonian") %>%
+        filter(ethnLabel != "Kazakh") %>%
+        filter(ethnLabel != "Kyrgyz") %>%
+        filter(ethnLabel != "Moldovan")
+Names %>%
+        group_by(ethnLabel) %>%
+        summarise(
+                Correct = mean(correct, na.rm = TRUE) * 100,
+                CorrectBroad = mean(correct.broad, na.rm = TRUE) * 100,
+                NotRussian = mean(notRussian, na.rm = TRUE) * 100
+        ) %>%
+        arrange(desc(Correct)) %>%
+        kable(col.names = c("Ethnic group", "% correct", "% broadly correct", "% not Russian"), digits = 0)
+```
+
+# Open the data from the experiment and recode variables
+
+```{r}
+Vacancies <- read_csv("VacanciesPublic.csv")
+
+# Converting variables into factors 
+Vacancies$RA <- factor(Vacancies$RA)
+Vacancies$city <- factor(Vacancies$city, levels = c("Moscow", "St Petersburg", "Kazan", "Ufa"))
+Vacancies$city2 <- factor(Vacancies$city2, levels = c("Moscow/St Petersburg", "Kazan/Ufa"))
+Vacancies$occupation <- factor(Vacancies$occupation, levels = c("cook", "salesperson",
+                                                                "sales manager", "programmer"))
+Vacancies$gender <- factor(Vacancies$gender, levels = c("female", "male"))
+Vacancies$ethnicity <- factor(Vacancies$ethnicity,
+        levels = c("Russian", "Jewish", "Ukrainian",
+        "German", "Lithuanian", "Latvian", "Georgian", "Armenian", "Tatar",
+        "Bashkir", "Chechen", "Azeri", "Tajik", "Uzbek"))
+Vacancies$ethnCollapsed <- factor(Vacancies$ethnCollapsed,
+        levels = c("Russian", "Jewish", "Ukrainian", "German", "Latvian/Lithuanian",
+                   "Tatar", "Tajik/Uzbek", "Chechen/Azeri",  "Armenian", "Georgian"))
+Vacancies$ethnGroup2 <- factor(Vacancies$ethnGroup2,
+        levels = c("European", "Southern"))
+Vacancies$website <- factor(Vacancies$website)
+Vacancies$candidateID <- factor(Vacancies$candidateID)
+
+```
+
+# Total number of job applications and contact rates (section 5.1)
+
+```{r}
+
+Vacancies %>%
+        filter(ethnicity != "Bashkir") %>%
+       nrow() %>%
+        kable()
+
+Vacancies %>%
+        filter(ethnicity != "Bashkir") %>%
+        summarise(
+                overall = sum(response) / n(),
+                onPhone = sum(phoneContact) / n(),
+                onWebsite = sum(websiteContact) / n()
+        ) %>%
+        kable(digits = 2)
+```
+
+# Contact rates by ethnic group and location (table 4)
+
+
+```{r}
+descTable <- Vacancies %>%
+        filter(ethnicity != "Bashkir") %>%
+#         Using the srvyr package that lets us work with the survey functions
+# within the tidyverse structures
+        as_survey_design(ids = candidateID) %>%
+        group_by(city2, ethnCollapsed) %>%
+        summarise(
+                # Total number of applications (with standard error that is unnecessary)
+                n_app = survey_total(),
+                # Total number of responses (with standard error that is unnecessary)
+                n_response = survey_total(response),
+                propContact = survey_mean(response, vartype = "ci")
+        ) %>%
+        as_tibble()
+
+# odds of receiving response for Russians in Moscow/St Peterbsurg
+oddsRusMSP <- descTable %>%
+        filter(ethnCollapsed == "Russian" & city2 == "Moscow/St Petersburg") %>%
+        summarise(
+           odds =   n_response / (n_app - n_response)
+        ) %>%
+        as.numeric()
+# odds of receiving response for Russians in Kazan/Ufa
+oddsRusKU <- descTable %>%
+        filter(ethnCollapsed == "Russian" & city2 == "Kazan/Ufa") %>%
+        summarise(
+           odds =   n_response / (n_app - n_response)
+        ) %>%
+        as.numeric()
+
+# proportion response for Russians in Moscow/StPeterbsurg
+propRusMSP <- descTable %>%
+        filter(ethnCollapsed == "Russian" & city2 == "Moscow/St Petersburg") %>%
+        select(propContact) %>%
+        as.numeric()
+
+# proportion response for Russians in Kazan/Ufa
+propRusKU <- descTable %>%
+        filter(ethnCollapsed == "Russian" & city2 == "Kazan/Ufa") %>%
+        select(propContact) %>%
+        as.numeric()
+
+# Updating the table
+descTable <- descTable %>%
+        select(-c(n_response_se, n_app_se)) 
+```
+
+Moscow and St Petersburg
+
+```{r}
+# Moscow and St Petersburg
+descTable %>%
+        filter(city2 == "Moscow/St Petersburg") %>%
+        mutate(oddsRus = oddsRusMSP) %>%
+        mutate(propRus = propRusMSP) %>%
+        mutate(cbkRatio = propRus / propContact) %>%
+        mutate(or = (n_response / (n_app - n_response)) / oddsRus) %>%
+        select(-c(propRus, oddsRus)) %>%
+        arrange(desc(or)) %>%
+        kable(digits = 2)
+``` 
+
+Kazan and Ufa
+
+```{r}              
+# Kazan and Ufa
+descTable%>%
+        filter(city2 == "Kazan/Ufa") %>%
+        mutate(oddsRus = oddsRusKU) %>%
+        mutate(propRus = propRusKU) %>%
+        mutate(cbkRatio = propRus / propContact) %>%
+        mutate(or = (n_response / (n_app - n_response)) / oddsRus) %>%
+        select(-c(propRus, oddsRus)) %>%
+        arrange(desc(or)) %>%
+        kable(digits = 2)
+               
+```
+
+n_app: the number of job applications sent;
+
+n_response: the number of positive responses received;
+
+propContact: proportion contacted (n_response / n_app);
+
+propContact_low: lower bound of the 95% CI for prop_Contact;
+
+propContact_upp: upper bound of the 95% CI for prop_Contact;
+
+cbkRatio: calllback ratio (propRus / propContact);
+
+or: odds ratio ((n_response / n_nonresponse) / (n_responseRus / n_nonresponseRus)).
+
+# Contact rates by ethnic group and location: chart (figure 1)
+
+```{r}
+Vacancies %>%
+        filter(ethnicity != "Bashkir") %>%
+        as_survey_design(ids = candidateID) %>%
+        group_by(city2, ethnCollapsed) %>%
+        summarise(
+                propContact = survey_mean(response, vartype = "ci")
+        ) %>%
+        arrange(desc(propContact)) %>%
+        ggplot(aes(x = reorder(ethnCollapsed, propContact), y = propContact,
+                        ymin = propContact_low, ymax = propContact_upp, linetype = city2)) +
+        geom_point(position = position_dodge(width = 0.2), aes(shape = city2)) +
+        geom_errorbar(position = position_dodge(width = 0.2), width = 0.1) +
+        coord_flip() +
+        ylab("Probability of contact") + 
+        xlab("Ethnic group") +
+        labs(shape="City") +
+        scale_linetype_manual(name = "City",
+                               values = 1:2) + 
+        scale_shape_manual(name = "City",
+                            values = 16:17) +
+        theme(legend.position = "bottom") +
+        theme(legend.title=element_blank())
+
+```
+
+# Linear probability models for contact (table 5)
+
+```{r results = 'asis'}
+
+
+# Moscow and St Petersburg
+Vacancies.MSP <- Vacancies %>%
+        filter(city2 == "Moscow/St Petersburg") %>%
+        as_survey_design(ids = candidateID)
+Vacancies.KU <- Vacancies %>%
+        filter(city2 == "Kazan/Ufa") %>%
+        as_survey_design(ids = candidateID)
+
+# Estimating the models
+
+m1 <- svyglm(response ~ ethnCollapsed + gender + occupation + city + website + RA, design = Vacancies.MSP)
+m2 <- svyglm(response ~ ethnCollapsed + gender + occupation + city + website + RA, design = Vacancies.KU)
+
+stargazer(m1, m2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"), column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
+          omit = c("gender", "occupation", "city", "website", "RA", "Constant"),
+          covariate.labels = c("Jewish", "Ukrainian", "German", "Latvian/Lithuanian",
+                               "Tatar", "Tajik/Uzbek", "Azerbaijani/Chechen",
+                               "Armenian", "Georgian"),
+          digits = 2)
+
+```
+
+Linear probability models. All the models control for gender, occupation, city, website, and research assistant's name. Cluster-robust standard errors applied (clustered by applicant's name). Ethnic Russians are the reference group.
+
+# Interaction between ethnicity and gender (table 6)
+
+```{r results = 'asis'}
+
+# Gender
+
+mGender1 <- svyglm(response ~ ethnGroup2  * gender + occupation + city + website + RA, design = Vacancies.MSP)
+mGender2 <- svyglm(response ~ ethnGroup2  * gender + occupation + city + website + RA, design = Vacancies.KU)
+
+stargazer(mGender1, mGender2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"), column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
+           omit = c("occupation", "city", "website", "RA", "Constant"),
+           covariate.labels = c("Southern", "male", "Southern:male"),
+           digits = 2)
+```
+
+# Probability of getting an explicit rejection (table 7)
+
+```{r results = 'asis'}
+
+# Subset those with response = 0 only
+Rejected <- Vacancies %>%
+  filter(response == 0)
+
+# Setting survey objects
+# Moscow and St Petersburg
+Rejected.MSP <- Rejected %>%
+        filter(city2 == "Moscow/St Petersburg") %>%
+        as_survey_design(ids = candidateID)
+Rejected.KU <- Rejected %>%
+        filter(city2 == "Kazan/Ufa") %>%
+        as_survey_design(ids = candidateID)
+
+# Contact on the phone
+mRejected1 <- svyglm(rejected ~ ethnCollapsed + website + gender + occupation  + city + RA, design = Rejected.MSP)
+mRejected2 <- svyglm(rejected ~ ethnCollapsed + website + gender + occupation  + city + RA, design = Rejected.KU)
+
+
+stargazer(mRejected1, mRejected2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"), column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
+           omit = c("website", "gender", "occupation", "city", "RA", "Constant"),
+          covariate.labels = c("Jewish", "Ukrainian", "German", "Latvian/Lithuanian",
+                               "Tatar", "Tajik/Uzbek", "Azerbaijani/Chechen",
+                               "Armenian", "Georgian"),
+          digits = 2)
+
+```
+
+# Contact on the phone and on the websites (table 8)
+
+```{r results = 'asis'}
+
+# Subset to those with response = 1 only
+Response <- Vacancies %>%
+  filter(response == 1)
+
+# Setting survey objects
+# Moscow and St Petersburg
+Response.MSP <- Response %>%
+        filter(city2 == "Moscow/St Petersburg") %>%
+        as_survey_design(ids = candidateID)
+Response.KU <- Response %>%
+        filter(city2 == "Kazan/Ufa") %>%
+        as_survey_design(ids = candidateID)
+
+# Contact on the phone
+mPhone1 <- svyglm(phoneContact ~ ethnCollapsed + website + gender + occupation  + city + RA, design = Response.MSP)
+mPhone2 <- svyglm(phoneContact ~ ethnCollapsed + website + gender + occupation  + city + RA, design = Response.KU)
+
+
+stargazer(mPhone1, mPhone2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"), column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
+           omit = c("website", "gender", "occupation", "city", "RA", "Constant"),
+          covariate.labels = c("Jewish", "Ukrainian", "German", "Latvian/Lithuanian",
+                               "Tatar", "Tajik/Uzbek", "Azerbaijani/Chechen",
+                               "Armenian", "Georgian"),
+          digits = 2)
+
+```
+
+# Ethnicity of the employers in Kazan and Ufa (Discussion)
+
+```{r}
+
+Vacancies %>%
+        filter(!is.na(notRussianEmp)) %>%
+        count(city, notRussianEmp) %>%
+        group_by(city) %>%
+        mutate(freq = n / sum(n)) %>%
+        kable(digits = 2)
+```
+
+# Contact rates by ethnic group in four cities (Appendix)
+
+```{r}
+
+Vacancies %>%
+        filter(ethnicity != "Bashkir") %>%
+        as_survey_design(ids = candidateID) %>%
+        group_by(city, ethnCollapsed) %>%
+        summarise(
+                propContact = survey_mean(response, vartype = "ci")
+        ) %>%
+        arrange(desc(propContact)) %>%
+        ggplot(aes(x = reorder(ethnCollapsed, propContact), y = propContact,
+                   ymin = propContact_low, ymax = propContact_upp, linetype = city)) +
+        geom_point(position = position_dodge(width = 0.2), aes(shape = city)) +
+        geom_errorbar(position = position_dodge(width = 0.2), width = 0.1) +
+        coord_flip() +
+        ylab("Probability of contact") + 
+        xlab("Ethnic group") +
+        labs(shape="City") +
+        scale_linetype_manual(name = "City",
+                              values = 1:4) + 
+        scale_shape_manual(name = "City",
+                           values = c(16:17, 0, 4)) +
+        theme(legend.position = "bottom") +
+        theme(legend.title=element_blank())
+
+```
+
+# Contact rates by ethnic group (combined) in four cities (Appendix)
+
+```{r}
+
+Vacancies %>%
+        filter(ethnicity != "Bashkir") %>%
+        as_survey_design(ids = candidateID) %>%
+        group_by(city, ethnGroup2) %>%
+        summarise(
+                propContact = survey_mean(response, vartype = "ci")
+        ) %>%
+        arrange(desc(propContact)) %>%
+        ggplot(aes(x = reorder(ethnGroup2, propContact), y = propContact,
+                   ymin = propContact_low, ymax = propContact_upp, linetype = city)) +
+        geom_point(position = position_dodge(width = 0.2), aes(shape = city)) +
+        geom_errorbar(position = position_dodge(width = 0.2), width = 0.1) +
+        coord_flip() +
+        ylab("Probability of contact") + 
+        xlab("Ethnic group") +
+        labs(shape="City") +
+        scale_linetype_manual(name = "City",
+                              values = 1:4) + 
+        scale_shape_manual(name = "City",
+                           values = c(16:17,0,4)) +
+        theme(legend.position = "bottom") +
+        theme(legend.title=element_blank())
+
+```
+
+# Interaction between ethnicity and occupation (Appendix)
+
+```{r results = 'asis'}
+
+mOcc1 <- svyglm(response ~ ethnGroup2  * occupation + gender + city + website + RA, design = Vacancies.MSP)
+mOcc2 <- svyglm(response ~ ethnGroup2  * occupation + gender + city + website + RA, design = Vacancies.KU)
+
+stargazer(mOcc1, mOcc2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"), column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
+           omit = c("gender", "city", "website", "RA", "Constant"),
+covariate.labels = c("Southern", "salesperson", "sales manager",
+                     "programmer", "Southern * salesperson", "Southern * sales manager", "Southern * programmer"),
+            digits = 2)
+```
