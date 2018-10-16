@@ -11,7 +11,7 @@ A.Bessudnov & A.Shcherbak. (2018). "Ethnic hierarchy in the Russian labour marke
 
 - VacanciesPublic.csv: data from the experiment;
 
-- CodebookSurveyPublic.docx: codebook for VacanciesPublic.csv;
+- CodebookVacanciesPublic.docx: codebook for VacanciesPublic.csv;
 
 - replication.Rmd: R Markdown file with the replication analysis;
 
