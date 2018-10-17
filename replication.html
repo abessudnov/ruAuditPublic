@@ -120,7 +120,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Replication code</h1>
 <h4 class="author"><em>Alexey Bessudnov</em></h4>
-<h4 class="date"><em>16 October, 2018</em></h4>
+<h4 class="date"><em>17 October, 2018</em></h4>
 
 </div>
 
@@ -684,7 +684,8 @@ stargazer(m1, m2, type = &quot;html&quot;, omit.stat = c(&quot;rsq&quot;, &quot;
           covariate.labels = c(&quot;Jewish&quot;, &quot;Ukrainian&quot;, &quot;German&quot;, &quot;Latvian/Lithuanian&quot;,
                                &quot;Tatar&quot;, &quot;Tajik/Uzbek&quot;, &quot;Azerbaijani/Chechen&quot;,
                                &quot;Armenian&quot;, &quot;Georgian&quot;),
-          digits = 2)</code></pre>
+          digits = 2,
+          star.cutoffs = c(0.05, 0.01, 0.001))</code></pre>
 <table style="text-align:center">
 <tr>
 <td colspan="3" style="border-bottom: 1px solid black">
@@ -826,7 +827,7 @@ German
 Latvian/Lithuanian
 </td>
 <td>
--0.07<sup>**</sup>
+-0.07<sup>*</sup>
 </td>
 <td>
 -0.04
@@ -1019,7 +1020,7 @@ Observations
 <em>Note:</em>
 </td>
 <td colspan="2" style="text-align:right">
-<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+<sup><em></sup>p&lt;0.05; <sup><strong></sup>p&lt;0.01; <sup></strong></em></sup>p&lt;0.001
 </td>
 </tr>
 </table>
@@ -1035,7 +1036,8 @@ mGender2 &lt;- svyglm(response ~ ethnGroup2  * gender + occupation + city + webs
 stargazer(mGender1, mGender2, type = &quot;html&quot;, omit.stat = c(&quot;rsq&quot;, &quot;adj.rsq&quot;, &quot;f&quot;, &quot;ser&quot;, &quot;bic&quot;, &quot;aic&quot;, &quot;ll&quot;), column.labels = c(&quot;Moscow/St Petersburg&quot;, &quot;Kazan/Ufa&quot;),
            omit = c(&quot;occupation&quot;, &quot;city&quot;, &quot;website&quot;, &quot;RA&quot;, &quot;Constant&quot;),
            covariate.labels = c(&quot;Southern&quot;, &quot;male&quot;, &quot;Southern:male&quot;),
-           digits = 2)</code></pre>
+           digits = 2,
+          star.cutoffs = c(0.05, 0.01, 0.001))</code></pre>
 <table style="text-align:center">
 <tr>
 <td colspan="3" style="border-bottom: 1px solid black">
@@ -1148,7 +1150,7 @@ male
 Southern:male
 </td>
 <td>
--0.08<sup>***</sup>
+-0.08<sup>**</sup>
 </td>
 <td>
 -0.03
@@ -1196,7 +1198,7 @@ Observations
 <em>Note:</em>
 </td>
 <td colspan="2" style="text-align:right">
-<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+<sup><em></sup>p&lt;0.05; <sup><strong></sup>p&lt;0.01; <sup></strong></em></sup>p&lt;0.001
 </td>
 </tr>
 </table>
@@ -1226,7 +1228,8 @@ stargazer(mRejected1, mRejected2, type = &quot;html&quot;, omit.stat = c(&quot;r
           covariate.labels = c(&quot;Jewish&quot;, &quot;Ukrainian&quot;, &quot;German&quot;, &quot;Latvian/Lithuanian&quot;,
                                &quot;Tatar&quot;, &quot;Tajik/Uzbek&quot;, &quot;Azerbaijani/Chechen&quot;,
                                &quot;Armenian&quot;, &quot;Georgian&quot;),
-          digits = 2)</code></pre>
+          digits = 2,
+          star.cutoffs = c(0.05, 0.01, 0.001))</code></pre>
 <table style="text-align:center">
 <tr>
 <td colspan="3" style="border-bottom: 1px solid black">
@@ -1426,7 +1429,7 @@ Tatar
 Tajik/Uzbek
 </td>
 <td>
-0.06<sup>***</sup>
+0.06<sup>**</sup>
 </td>
 <td>
 -0.004
@@ -1455,7 +1458,7 @@ Tajik/Uzbek
 Azerbaijani/Chechen
 </td>
 <td>
-0.08<sup>***</sup>
+0.08<sup>**</sup>
 </td>
 <td>
 0.02
@@ -1487,7 +1490,7 @@ Armenian
 0.03
 </td>
 <td>
-0.07<sup>*</sup>
+0.07
 </td>
 </tr>
 <tr>
@@ -1513,7 +1516,7 @@ Armenian
 Georgian
 </td>
 <td>
-0.05<sup>**</sup>
+0.05<sup>*</sup>
 </td>
 <td>
 0.05
@@ -1561,7 +1564,7 @@ Observations
 <em>Note:</em>
 </td>
 <td colspan="2" style="text-align:right">
-<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+<sup><em></sup>p&lt;0.05; <sup><strong></sup>p&lt;0.01; <sup></strong></em></sup>p&lt;0.001
 </td>
 </tr>
 </table>
@@ -1591,7 +1594,8 @@ stargazer(mPhone1, mPhone2, type = &quot;html&quot;, omit.stat = c(&quot;rsq&quo
           covariate.labels = c(&quot;Jewish&quot;, &quot;Ukrainian&quot;, &quot;German&quot;, &quot;Latvian/Lithuanian&quot;,
                                &quot;Tatar&quot;, &quot;Tajik/Uzbek&quot;, &quot;Azerbaijani/Chechen&quot;,
                                &quot;Armenian&quot;, &quot;Georgian&quot;),
-          digits = 2)</code></pre>
+          digits = 2,
+          star.cutoffs = c(0.05, 0.01, 0.001))</code></pre>
 <table style="text-align:center">
 <tr>
 <td colspan="3" style="border-bottom: 1px solid black">
@@ -1646,10 +1650,10 @@ Kazan/Ufa
 Jewish
 </td>
 <td>
--0.11<sup>**</sup>
+-0.11<sup>*</sup>
 </td>
 <td>
--0.08<sup>*</sup>
+-0.08
 </td>
 </tr>
 <tr>
@@ -1704,7 +1708,7 @@ Ukrainian
 German
 </td>
 <td>
--0.11<sup>*</sup>
+-0.11
 </td>
 <td>
 0.06
@@ -1733,7 +1737,7 @@ German
 Latvian/Lithuanian
 </td>
 <td>
--0.17<sup>***</sup>
+-0.17<sup>**</sup>
 </td>
 <td>
 -0.02
@@ -1762,7 +1766,7 @@ Latvian/Lithuanian
 Tatar
 </td>
 <td>
--0.20<sup>***</sup>
+-0.20<sup>**</sup>
 </td>
 <td>
 -0.06
@@ -1849,7 +1853,7 @@ Azerbaijani/Chechen
 Armenian
 </td>
 <td>
--0.16<sup>***</sup>
+-0.16<sup>**</sup>
 </td>
 <td>
 -0.03
@@ -1878,7 +1882,7 @@ Armenian
 Georgian
 </td>
 <td>
--0.17<sup>***</sup>
+-0.17<sup>**</sup>
 </td>
 <td>
 -0.02
@@ -1926,7 +1930,7 @@ Observations
 <em>Note:</em>
 </td>
 <td colspan="2" style="text-align:right">
-<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+<sup><em></sup>p&lt;0.05; <sup><strong></sup>p&lt;0.01; <sup></strong></em></sup>p&lt;0.001
 </td>
 </tr>
 </table>
@@ -2061,7 +2065,8 @@ stargazer(mOcc1, mOcc2, type = &quot;html&quot;, omit.stat = c(&quot;rsq&quot;, 
            omit = c(&quot;gender&quot;, &quot;city&quot;, &quot;website&quot;, &quot;RA&quot;, &quot;Constant&quot;),
 covariate.labels = c(&quot;Southern&quot;, &quot;salesperson&quot;, &quot;sales manager&quot;,
                      &quot;programmer&quot;, &quot;Southern * salesperson&quot;, &quot;Southern * sales manager&quot;, &quot;Southern * programmer&quot;),
-            digits = 2)</code></pre>
+            digits = 2,
+                star.cutoffs = c(0.05, 0.01, 0.001))</code></pre>
 <table style="text-align:center">
 <tr>
 <td colspan="3" style="border-bottom: 1px solid black">
@@ -2145,10 +2150,10 @@ Southern
 salesperson
 </td>
 <td>
--0.06<sup>**</sup>
+-0.06<sup>*</sup>
 </td>
 <td>
--0.10<sup>**</sup>
+-0.10<sup>*</sup>
 </td>
 </tr>
 <tr>
@@ -2203,10 +2208,10 @@ sales manager
 programmer
 </td>
 <td>
--0.10<sup>***</sup>
+-0.10<sup>**</sup>
 </td>
 <td>
-0.10<sup>*</sup>
+0.10
 </td>
 </tr>
 <tr>
@@ -2264,7 +2269,7 @@ Southern * sales manager
 -0.01
 </td>
 <td>
--0.09<sup>*</sup>
+-0.09
 </td>
 </tr>
 <tr>
@@ -2338,7 +2343,7 @@ Observations
 <em>Note:</em>
 </td>
 <td colspan="2" style="text-align:right">
-<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+<sup><em></sup>p&lt;0.05; <sup><strong></sup>p&lt;0.01; <sup></strong></em></sup>p&lt;0.001
 </td>
 </tr>
 </table>

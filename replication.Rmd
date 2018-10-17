@@ -241,7 +241,8 @@ stargazer(m1, m2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bi
           covariate.labels = c("Jewish", "Ukrainian", "German", "Latvian/Lithuanian",
                                "Tatar", "Tajik/Uzbek", "Azerbaijani/Chechen",
                                "Armenian", "Georgian"),
-          digits = 2)
+          digits = 2,
+          star.cutoffs = c(0.05, 0.01, 0.001))
 
 ```
 
@@ -259,7 +260,8 @@ mGender2 <- svyglm(response ~ ethnGroup2  * gender + occupation + city + website
 stargazer(mGender1, mGender2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"), column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
            omit = c("occupation", "city", "website", "RA", "Constant"),
            covariate.labels = c("Southern", "male", "Southern:male"),
-           digits = 2)
+           digits = 2,
+          star.cutoffs = c(0.05, 0.01, 0.001))
 ```
 
 # Probability of getting an explicit rejection (table 7)
@@ -289,7 +291,8 @@ stargazer(mRejected1, mRejected2, type = "html", omit.stat = c("rsq", "adj.rsq",
           covariate.labels = c("Jewish", "Ukrainian", "German", "Latvian/Lithuanian",
                                "Tatar", "Tajik/Uzbek", "Azerbaijani/Chechen",
                                "Armenian", "Georgian"),
-          digits = 2)
+          digits = 2,
+          star.cutoffs = c(0.05, 0.01, 0.001))
 
 ```
 
@@ -320,7 +323,8 @@ stargazer(mPhone1, mPhone2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", 
           covariate.labels = c("Jewish", "Ukrainian", "German", "Latvian/Lithuanian",
                                "Tatar", "Tajik/Uzbek", "Azerbaijani/Chechen",
                                "Armenian", "Georgian"),
-          digits = 2)
+          digits = 2,
+          star.cutoffs = c(0.05, 0.01, 0.001))
 
 ```
 
@@ -405,5 +409,6 @@ stargazer(mOcc1, mOcc2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser
            omit = c("gender", "city", "website", "RA", "Constant"),
 covariate.labels = c("Southern", "salesperson", "sales manager",
                      "programmer", "Southern * salesperson", "Southern * sales manager", "Southern * programmer"),
-            digits = 2)
+            digits = 2,
+                star.cutoffs = c(0.05, 0.01, 0.001))
 ```
