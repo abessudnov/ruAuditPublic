@@ -1,5 +1,5 @@
 # ruAuditPublic
-Ethnic hierarchy in the Russian labour market: Data and replication materials
+Ethnic hierarchy in the Russian labour market: Data and replication materials.
 
 This repo contains public data and replication materials for:
 
