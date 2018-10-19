@@ -2,7 +2,7 @@
 title: "Replication code"
 author: "Alexey Bessudnov"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
-output: html_document
+output: pdf_document
 ---
 
 
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(message = FALSE)
 
 ```
 
-This is a replication code to reproduce the results in Bessudnov, A. \& Shcherbak, A. "Ethnic hierarchy in the Russian labour market: A field experiment".
+This is a replication code to reproduce the results in Bessudnov, Alexey \& Andrey Shcherbak, A. 2018. "Ethnic hierarchy in the Russian labour market: A field experiment". SocArXiv. October 16. doi:10.31235/osf.io/2qzus.
 
 # Install and attach packages
 
@@ -46,7 +46,8 @@ Names %>%
                 NotRussian = mean(notRussian, na.rm = TRUE) * 100
         ) %>%
         arrange(desc(Correct)) %>%
-        kable(col.names = c("Ethnic group", "% correct", "% broadly correct", "% not Russian"), digits = 0)
+        kable(col.names = c("Ethnic group", "% correct", "% broadly correct", "% not Russian"),
+        digits = 0)
 ```
 
 # Open the data from the experiment and recode variables
@@ -145,7 +146,7 @@ descTable <- descTable %>%
         select(-c(n_response_se, n_app_se)) 
 ```
 
-Moscow and St Petersburg
+## Moscow and St Petersburg
 
 ```{r}
 # Moscow and St Petersburg
@@ -155,12 +156,12 @@ descTable %>%
         mutate(propRus = propRusMSP) %>%
         mutate(cbkRatio = propRus / propContact) %>%
         mutate(or = (n_response / (n_app - n_response)) / oddsRus) %>%
-        select(-c(propRus, oddsRus)) %>%
+        select(-c(city2, propRus, oddsRus)) %>%
         arrange(desc(or)) %>%
         kable(digits = 2)
 ``` 
 
-Kazan and Ufa
+## Kazan and Ufa
 
 ```{r}              
 # Kazan and Ufa
@@ -170,7 +171,7 @@ descTable%>%
         mutate(propRus = propRusKU) %>%
         mutate(cbkRatio = propRus / propContact) %>%
         mutate(or = (n_response / (n_app - n_response)) / oddsRus) %>%
-        select(-c(propRus, oddsRus)) %>%
+        select(-c(city2, propRus, oddsRus)) %>%
         arrange(desc(or)) %>%
         kable(digits = 2)
                
@@ -209,10 +210,8 @@ Vacancies %>%
         ylab("Probability of contact") + 
         xlab("Ethnic group") +
         labs(shape="City") +
-        scale_linetype_manual(name = "City",
-                               values = 1:2) + 
-        scale_shape_manual(name = "City",
-                            values = 16:17) +
+        scale_linetype_manual(name = "City", values = 1:2) + 
+        scale_shape_manual(name = "City", values = 16:17) +
         theme(legend.position = "bottom") +
         theme(legend.title=element_blank())
 
@@ -221,7 +220,6 @@ Vacancies %>%
 # Linear probability models for contact (table 5)
 
 ```{r results = 'asis'}
-
 
 # Moscow and St Petersburg
 Vacancies.MSP <- Vacancies %>%
@@ -233,14 +231,17 @@ Vacancies.KU <- Vacancies %>%
 
 # Estimating the models
 
-m1 <- svyglm(response ~ ethnCollapsed + gender + occupation + city + website + RA, design = Vacancies.MSP)
-m2 <- svyglm(response ~ ethnCollapsed + gender + occupation + city + website + RA, design = Vacancies.KU)
+m1 <- svyglm(response ~ ethnCollapsed + gender + occupation + city + website + RA,
+             design = Vacancies.MSP)
+m2 <- svyglm(response ~ ethnCollapsed + gender + occupation + city + website + RA,
+             design = Vacancies.KU)
 
-stargazer(m1, m2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"), column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
+stargazer(m1, m2, omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"),
+          column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
           omit = c("gender", "occupation", "city", "website", "RA", "Constant"),
           covariate.labels = c("Jewish", "Ukrainian", "German", "Latvian/Lithuanian",
-                               "Tatar", "Tajik/Uzbek", "Azerbaijani/Chechen",
-                               "Armenian", "Georgian"),
+                               "Tatar", "Tajik/Uzbek", "Azerbaijani/Chechen","Armenian",
+                               "Georgian"),
           digits = 2,
           star.cutoffs = c(0.05, 0.01, 0.001))
 
@@ -254,13 +255,16 @@ Linear probability models. All the models control for gender, occupation, city, 
 
 # Gender
 
-mGender1 <- svyglm(response ~ ethnGroup2  * gender + occupation + city + website + RA, design = Vacancies.MSP)
-mGender2 <- svyglm(response ~ ethnGroup2  * gender + occupation + city + website + RA, design = Vacancies.KU)
+mGender1 <- svyglm(response ~ ethnGroup2  * gender + occupation + city + website + RA,
+                   design = Vacancies.MSP)
+mGender2 <- svyglm(response ~ ethnGroup2  * gender + occupation + city + website + RA,
+                   design = Vacancies.KU)
 
-stargazer(mGender1, mGender2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"), column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
-           omit = c("occupation", "city", "website", "RA", "Constant"),
-           covariate.labels = c("Southern", "male", "Southern:male"),
-           digits = 2,
+stargazer(mGender1, mGender2, omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"),
+          column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
+          omit = c("occupation", "city", "website", "RA", "Constant"),
+          covariate.labels = c("Southern", "male", "Southern:male"),
+          digits = 2,
           star.cutoffs = c(0.05, 0.01, 0.001))
 ```
 
@@ -282,12 +286,15 @@ Rejected.KU <- Rejected %>%
         as_survey_design(ids = candidateID)
 
 # Contact on the phone
-mRejected1 <- svyglm(rejected ~ ethnCollapsed + website + gender + occupation  + city + RA, design = Rejected.MSP)
-mRejected2 <- svyglm(rejected ~ ethnCollapsed + website + gender + occupation  + city + RA, design = Rejected.KU)
+mRejected1 <- svyglm(rejected ~ ethnCollapsed + website + gender + occupation  + city + RA,
+                     design = Rejected.MSP)
+mRejected2 <- svyglm(rejected ~ ethnCollapsed + website + gender + occupation  + city + RA,
+                     design = Rejected.KU)
 
 
-stargazer(mRejected1, mRejected2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"), column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
-           omit = c("website", "gender", "occupation", "city", "RA", "Constant"),
+stargazer(mRejected1, mRejected2, omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"),
+          column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
+          omit = c("website", "gender", "occupation", "city", "RA", "Constant"),
           covariate.labels = c("Jewish", "Ukrainian", "German", "Latvian/Lithuanian",
                                "Tatar", "Tajik/Uzbek", "Azerbaijani/Chechen",
                                "Armenian", "Georgian"),
@@ -314,12 +321,15 @@ Response.KU <- Response %>%
         as_survey_design(ids = candidateID)
 
 # Contact on the phone
-mPhone1 <- svyglm(phoneContact ~ ethnCollapsed + website + gender + occupation  + city + RA, design = Response.MSP)
-mPhone2 <- svyglm(phoneContact ~ ethnCollapsed + website + gender + occupation  + city + RA, design = Response.KU)
+mPhone1 <- svyglm(phoneContact ~ ethnCollapsed + website + gender + occupation  + city + RA,
+                  design = Response.MSP)
+mPhone2 <- svyglm(phoneContact ~ ethnCollapsed + website + gender + occupation  + city + RA,
+                  design = Response.KU)
 
 
-stargazer(mPhone1, mPhone2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"), column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
-           omit = c("website", "gender", "occupation", "city", "RA", "Constant"),
+stargazer(mPhone1, mPhone2, omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"),
+          column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
+          omit = c("website", "gender", "occupation", "city", "RA", "Constant"),
           covariate.labels = c("Jewish", "Ukrainian", "German", "Latvian/Lithuanian",
                                "Tatar", "Tajik/Uzbek", "Azerbaijani/Chechen",
                                "Armenian", "Georgian"),
@@ -402,13 +412,17 @@ Vacancies %>%
 
 ```{r results = 'asis'}
 
-mOcc1 <- svyglm(response ~ ethnGroup2  * occupation + gender + city + website + RA, design = Vacancies.MSP)
-mOcc2 <- svyglm(response ~ ethnGroup2  * occupation + gender + city + website + RA, design = Vacancies.KU)
+mOcc1 <- svyglm(response ~ ethnGroup2  * occupation + gender + city + website + RA,
+                design = Vacancies.MSP)
+mOcc2 <- svyglm(response ~ ethnGroup2  * occupation + gender + city + website + RA,
+                design = Vacancies.KU)
 
-stargazer(mOcc1, mOcc2, type = "html", omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"), column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
-           omit = c("gender", "city", "website", "RA", "Constant"),
-covariate.labels = c("Southern", "salesperson", "sales manager",
-                     "programmer", "Southern * salesperson", "Southern * sales manager", "Southern * programmer"),
-            digits = 2,
-                star.cutoffs = c(0.05, 0.01, 0.001))
+stargazer(mOcc1, mOcc2, omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"),
+          column.labels = c("Moscow/St Petersburg", "Kazan/Ufa"),
+          omit = c("gender", "city", "website", "RA", "Constant"),
+          covariate.labels = c("Southern", "salesperson", "sales manager",
+                     "programmer", "Southern * salesperson", "Southern * sales manager",
+                     "Southern * programmer"),
+          digits = 2,
+          star.cutoffs = c(0.05, 0.01, 0.001))
 ```

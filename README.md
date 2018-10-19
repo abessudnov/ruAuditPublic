@@ -7,7 +7,9 @@ Bessudnov, Alexey, & Andrey Shcherbak. 2018. "Ethnic hierarchy in the Russian la
 
 Available at: https://osf.io/preprints/socarxiv/2qzus/
 
-The data are distributed under the CC-By Attribution 4.0 International Licence. If you use the data please cite the paper as above. 
+The data are distributed under the CC-By Attribution 4.0 International Licence. If you use the data please cite the paper as above.
+
+- Bessudnov_Shcherbak.pdf: the paper;
 
 - SurveyPublic.csv: data from the name recognition survey;
 
@@ -19,8 +21,8 @@ The data are distributed under the CC-By Attribution 4.0 International Licence. 
 
 - replication.Rmd: R Markdown file with the replication analysis;
 
-- replication.html: html file produced by replication.Rmd;
+- replication.pdf: pdf file produced by replication.Rmd;
 
-- replication_files: graphics files for replication.html;
+- run.R: R script to produce replication.pdf.
 
-- Bessudnov_Shcherbak.pdf: the paper.
+
