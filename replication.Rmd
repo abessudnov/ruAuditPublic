@@ -13,7 +13,7 @@ knitr::opts_chunk$set(message = FALSE)
 
 ```
 
-This is a replication code to reproduce the results in Bessudnov, Alexey \& Andrey Shcherbak, A. 2018. "Ethnic hierarchy in the Russian labour market: A field experiment". SocArXiv. October 16. doi:10.31235/osf.io/2qzus.
+This is a replication code to reproduce the results in Bessudnov, A. \& Shcherbak, A. (2019). "Ethnic discrimination in multi-ethnic societies: Evidence from Russia". European Sociological Review. Published online 8 October 2019. doi:10.1093/esr/jcz045
 
 # Install and attach packages
 
@@ -191,7 +191,7 @@ cbkRatio: calllback ratio (propRus / propContact);
 
 or: odds ratio ((n_response / n_nonresponse) / (n_responseRus / n_nonresponseRus)).
 
-# Contact rates by ethnic group and location: chart (figure 1)
+# Contact rates by ethnic group and location: chart
 
 ```{r}
 Vacancies %>%
@@ -217,7 +217,7 @@ Vacancies %>%
 
 ```
 
-# Linear probability models for contact (table 5)
+# Linear probability models for contact
 
 ```{r results = 'asis'}
 
@@ -249,7 +249,7 @@ stargazer(m1, m2, omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "aic", "ll"
 
 Linear probability models. All the models control for gender, occupation, city, website, and research assistant's name. Cluster-robust standard errors applied (clustered by applicant's name). Ethnic Russians are the reference group.
 
-# Interaction between ethnicity and gender (table 6)
+# Interaction between ethnicity and gender
 
 ```{r results = 'asis'}
 
@@ -268,7 +268,7 @@ stargazer(mGender1, mGender2, omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic",
           star.cutoffs = c(0.05, 0.01, 0.001))
 ```
 
-# Probability of getting an explicit rejection (table 7)
+# Probability of getting an explicit rejection
 
 ```{r results = 'asis'}
 
@@ -303,7 +303,7 @@ stargazer(mRejected1, mRejected2, omit.stat = c("rsq", "adj.rsq", "f", "ser", "b
 
 ```
 
-# Contact on the phone and on the websites (table 8)
+# Contact on the phone and on the websites
 
 ```{r results = 'asis'}
 
@@ -338,7 +338,7 @@ stargazer(mPhone1, mPhone2, omit.stat = c("rsq", "adj.rsq", "f", "ser", "bic", "
 
 ```
 
-# Ethnicity of the employers in Kazan and Ufa (Discussion)
+# Ethnicity of the employers in Kazan and Ufa
 
 ```{r}
 
@@ -350,7 +350,7 @@ Vacancies %>%
         kable(digits = 2)
 ```
 
-# Contact rates by ethnic group in four cities (Appendix)
+# Contact rates by ethnic group in four cities
 
 ```{r}
 
@@ -379,7 +379,7 @@ Vacancies %>%
 
 ```
 
-# Contact rates by ethnic group (combined) in four cities (Appendix)
+# Contact rates by ethnic group (combined) in four cities
 
 ```{r}
 
@@ -408,7 +408,7 @@ Vacancies %>%
 
 ```
 
-# Interaction between ethnicity and occupation (Appendix)
+# Interaction between ethnicity and occupation
 
 ```{r results = 'asis'}
 
